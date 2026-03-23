@@ -69,3 +69,142 @@ main()
         returns back
     }
 }
+while(1)
+{
+    some_function();    // takes 400ms
+    another_function(); // takes 300ms
+    another_function(); // takes 200ms
+    
+    if(RC0 == 0)        // only checked after 900ms!
+    {
+        // event
+    }
+    
+    more_code();        // takes 100ms
+}                       // total = 1000ms loop
+```
+```
+Timeline:
+─────────────────────────────────────────────────────
+0ms        400ms      700ms     900ms    1000ms
+│          │          │         │        │
+[func1]───[func2]────[func3]───[CHECK]──[more]──loop
+              ↑
+         KEY PRESSED HERE (say at 500ms)
+         
+         But RC0 only checked at 900ms!
+         ∴ 400ms DELAY in detection!
+```
+
+---
+
+## What if Event is Too Short?
+```
+Key press duration = 50ms
+
+Timeline:
+──────────────────────────────────────────────
+         Key pressed    Key released
+              ↓              ↓
+─────────────[■■■■■]──────────────────────────
+0ms         500ms    550ms                1000ms
+                              ↑
+                         RC0 checked here
+                         BUT key already released!
+                         ∴ EVENT COMPLETELY MISSED ❌
+```
+
+> If the **key press duration is shorter than the loop time**, the event will be **completely missed!**
+
+---
+
+## Summary of Disadvantages of Polling
+
+| Problem | Explanation |
+|---------|-------------|
+| **Bad response time** | Event detected late, not immediately |
+| **Event might be missed** | If loop is slow & event is short |
+| **Bad power management** | CPU keeps running even when nothing happens |
+| **Wastes CPU time** | CPU just keeps checking unnecessarily |
+
+---
+
+## Solution → **Interrupts!**
+```
+POLLING:                    INTERRUPTS:
+────────                    ───────────
+CPU keeps checking          Event TELLS the CPU
+"did it happen?"            "Hey! I happened!"
+    ↓                           ↓
+Wastes time                 CPU does useful work
+May miss events             Never misses events
+Bad power mgmt              Can sleep & wake upwhile(1)
+{
+    some_function();    // takes 400ms
+    another_function(); // takes 300ms
+    another_function(); // takes 200ms
+    
+    if(RC0 == 0)        // only checked after 900ms!
+    {
+        // event
+    }
+    
+    more_code();        // takes 100ms
+}                       // total = 1000ms loop
+```
+```
+Timeline:
+─────────────────────────────────────────────────────
+0ms        400ms      700ms     900ms    1000ms
+│          │          │         │        │
+[func1]───[func2]────[func3]───[CHECK]──[more]──loop
+              ↑
+         KEY PRESSED HERE (say at 500ms)
+         
+         But RC0 only checked at 900ms!
+         ∴ 400ms DELAY in detection!
+```
+
+---
+
+## What if Event is Too Short?
+```
+Key press duration = 50ms
+
+Timeline:
+──────────────────────────────────────────────
+         Key pressed    Key released
+              ↓              ↓
+─────────────[■■■■■]──────────────────────────
+0ms         500ms    550ms                1000ms
+                              ↑
+                         RC0 checked here
+                         BUT key already released!
+                         ∴ EVENT COMPLETELY MISSED ❌
+```
+
+> If the **key press duration is shorter than the loop time**, the event will be **completely missed!**
+
+---
+
+## Summary of Disadvantages of Polling
+
+| Problem | Explanation |
+|---------|-------------|
+| **Bad response time** | Event detected late, not immediately |
+| **Event might be missed** | If loop is slow & event is short |
+| **Bad power management** | CPU keeps running even when nothing happens |
+| **Wastes CPU time** | CPU just keeps checking unnecessarily |
+
+---
+
+## Solution → **Interrupts!**
+```
+POLLING:                    INTERRUPTS:
+────────                    ───────────
+CPU keeps checking          Event TELLS the CPU
+"did it happen?"            "Hey! I happened!"
+    ↓                           ↓
+Wastes time                 CPU does useful work
+May miss events             Never misses events
+Bad power mgmt              Can sleep & wake up
