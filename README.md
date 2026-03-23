@@ -6,7 +6,7 @@ isr()
     GIE = 0;        // disables further interrupts
     int_flag = 0;   // prevents recursive function calls
 }
-```
+
 
 ---
 
