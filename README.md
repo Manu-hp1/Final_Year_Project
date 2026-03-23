@@ -1,12 +1,13 @@
 # Final-Year-Project
 Autonomous River Depth Plotting and Cleaning Robot
 
+```
 isr()
 {
     GIE = 0;        // disables further interrupts
     int_flag = 0;   // prevents recursive function calls
 }
-
+```
 
 ---
 
